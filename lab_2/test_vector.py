@@ -12,10 +12,11 @@ v2_list = list()
 
 for x1 in v1_x:
     for y1 in v1_y:
-        for x2 in v2_x:
-            for y2 in v2_y:
-                v1_list.append(Vector(x1, y1))
-                v2_list.append(Vector(x2, y2))
+        v1_list.append(Vector(x1, y1))
+
+for x2 in v2_x:
+    for y2 in v2_y:
+        v2_list.append(Vector(x2, y2))
 
 
 def compare(v, v_before):
