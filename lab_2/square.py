@@ -2,14 +2,18 @@ import math
 
 
 class BaseFlat:
-    type = "Abstract Figure"
+    _type = "Abstract Figure"
 
     def square(self):
         raise NotImplementedError()
 
+    @property
+    def type(self):
+        return self._type
+
 
 class Circle(BaseFlat):
-    type = "Round"
+    _type = "Circle"
 
     def __new__(cls, radius):
         if radius > 0:
@@ -26,7 +30,7 @@ class Circle(BaseFlat):
 
 
 class Triangle(BaseFlat):
-    type = "Triangle"
+    _type = "Triangle"
 
     def __new__(cls, a, b, c):
         first_cond = (a + b) > c
@@ -51,7 +55,7 @@ class Triangle(BaseFlat):
 
 
 class Rectangle(BaseFlat):
-    type = "Rectangle"
+    _type = "Rectangle"
 
     def __new__(cls, width, height):
         positive_sides_cond = width > 0 and height > 0

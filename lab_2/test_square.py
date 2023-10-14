@@ -8,8 +8,7 @@ def test_circle_incorrect_init():
     for radius in incorrect_r:
         try:
             c = Circle(radius)
-            if isinstance(c, Circle):
-                assert False
+            assert not isinstance(c, Circle)
         except Exception:
             assert True
 
@@ -19,8 +18,7 @@ def test_circle_correct_init():
     for radius in correct_radius:
         try:
             c = Circle(radius)
-            if not isinstance(c, Circle):
-                assert False
+            assert isinstance(c, Circle)
         except Exception:
             assert False
     assert True
@@ -31,8 +29,7 @@ def test_triangle_incorrect_init():
     for sides in incorrect_sides:
         try:
             t = Triangle(sides[0], sides[1], sides[2])
-            if isinstance(t, Triangle):
-                assert False
+            assert not isinstance(t, Triangle)
         except Exception:
             assert True
 
@@ -42,8 +39,7 @@ def test_triangle_correct_init():
     for sides in correct_sides:
         try:
             t = Triangle(sides[0], sides[1], sides[2])
-            if not isinstance(t, Triangle):
-                assert False
+            assert isinstance(t, Triangle)
         except Exception:
             assert False
     assert True
@@ -54,8 +50,7 @@ def test_rectangle_incorrect_init():
     for sides in incorrect_sides:
         try:
             r = Rectangle(sides[0], sides[1])
-            if isinstance(r, Rectangle):
-                assert False
+            assert not isinstance(r, Rectangle)
         except Exception:
             assert True
 
@@ -65,9 +60,40 @@ def test_rectangle_correct_init():
     for sides in correct_sides:
         try:
             r = Rectangle(sides[0], sides[1])
-            if not isinstance(r, Rectangle):
-                assert False
+            assert isinstance(r, Rectangle)
         except Exception:
             assert False
     assert True
 
+
+def test_shapes_types():
+    circle_attr = "Circle"
+    triangle_attr = "Triangle"
+    rectangle_attr = "Rectangle"
+    other_attr = "Other"
+
+    c = Circle(4)
+    t = Triangle(3, 4, 5)
+    r = Rectangle(4, 5)
+
+    assert c.type == circle_attr
+    assert t.type == triangle_attr
+    assert r.type == rectangle_attr
+
+    try:
+        c.type = other_attr
+        assert c.type == circle_attr
+    except Exception:
+        assert c.type == circle_attr
+
+    try:
+        t.type = other_attr
+        assert t.type == triangle_attr
+    except Exception:
+        assert t.type == triangle_attr
+
+    try:
+        r.type = other_attr
+        assert r.type == rectangle_attr
+    except Exception:
+        assert r.type == rectangle_attr
