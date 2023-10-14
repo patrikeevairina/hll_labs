@@ -24,6 +24,14 @@ def test_circle_correct_init():
     assert True
 
 
+def test_circle_square():
+    list_radius = (3, 4.5, math.pi)
+    for radius in list_radius:
+        c = Circle(radius)
+        square = radius ** 2 * math.pi
+        assert math.isclose(square, c.square())
+
+
 def test_triangle_incorrect_init():
     incorrect_sides = ((1, 2, 3), (-2, 0, 2), (0, 0, 1), (-3, -4, -5), (-3, 4, -5))
     for sides in incorrect_sides:
@@ -45,6 +53,15 @@ def test_triangle_correct_init():
     assert True
 
 
+def test_triangle_square():
+    list_sides = ((3, 4, 5), (math.e, math.pi, 1))
+    for sides in list_sides:
+        t = Triangle(sides[0], sides[1], sides[2])
+        p = 0.5 * (sides[0] + sides[1] + sides[2])
+        square = p * (p - sides[0]) * (p - sides[1]) * (p - sides[2])
+        assert math.isclose(square, t.square())
+
+
 def test_rectangle_incorrect_init():
     incorrect_sides = ((0, 0), (-1, -4), (3, 4), (5, -3), (0, 2), (5, 0))
     for sides in incorrect_sides:
@@ -64,6 +81,14 @@ def test_rectangle_correct_init():
         except Exception:
             assert False
     assert True
+
+
+def test_rectangle_square():
+    list_sides = ((3, 5.6), (math.e, math.pi))
+    for sides in list_sides:
+        r = Rectangle(sides[0], sides[1])
+        square = sides[0] * sides[1]
+        assert math.isclose(square, r.square())
 
 
 def test_shapes_types():
