@@ -4,7 +4,7 @@ import time
 class Decorator:
     def __init__(self, func):
         self.func = func
-        self.history = ""
+        self.history = ""  # поле, в котором хранится история
 
     def __call__(self, *args, **kwargs):
         start_time = time.time()

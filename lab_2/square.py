@@ -7,7 +7,7 @@ import math
 # конструктор Circle принимает в качестве параметра радиус круга
 # конструктор Triangle принимает в качестве параметров длины сторон треугольника
 # конструктор Rectangle принимает в качестве параметров высоту и ширину
-class BaseFlat:
+class BaseFlat:  # базовый класс
     _type = "Abstract Figure"
 
     def square(self):
