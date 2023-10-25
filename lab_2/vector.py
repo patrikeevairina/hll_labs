@@ -1,7 +1,6 @@
 # Для того, чтобы можно было прогнать тесты по своему вектору, вектор должен иметь интерфейс:
 # конструктор принимает на вход координаты х и у
 # доступ к координатам должен осуществляться через методы класса x() и y()
-# длина вектора возвращается методом класса length()
 class Vector:
     def __init__(self, x, y):
         self.__x = x
@@ -14,6 +13,9 @@ class Vector:
 
     def __str__(self):
         return "<{0}, {1}>".format(self.__x, self.__y)
+
+    def __repr__(self):
+       return "<{0}, {1}>".format(self.__x, self.__y)
 
     def __mul__(self, other):
         if isinstance(other, Vector):
@@ -36,7 +38,7 @@ class Vector:
         y_neq = self.__y != other.y()
         return x_neq or y_neq
 
-    def length(self):
+    def __abs__(self):
         vec_len = (self.__x ** 2 + self.__y ** 2) ** 0.5
         return vec_len
 
