@@ -2,37 +2,35 @@ import os
 import time
 
 
-class Log:
+class Log(object):
     _instance = None
-    _filename = None
+    _filed = None
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = object.__new__(cls, *args, **kwargs)
-        cls._filename = os.path.join(os.getcwd(), "log.txt")
-        f = open(cls._filename, 'w')
-        f.close()
+        _filename = os.path.join(os.getcwd(), "log.txt")
+        cls._filed = open(_filename, 'w')
         return cls._instance
 
+    def __del__(self):
+        self._filed.close()
+
     def debug(self, message):
-        with open(self._filename, 'a') as f:
-            f.write("[DEBUG]<{0}>:{1}\n".format(time.time(), message))
+        self._filed.write("[DEBUG]<{0}>:{1}\n".format(time.time(), message))
 
     def info(self, message):
-        with open(self._filename, 'a') as f:
-            f.write("[INFO]<{0}>:{1}\n".format(time.time(), message))
+        self._filed.write("[INFO]<{0}>:{1}\n".format(time.time(), message))
 
     def warn(self, message):
-        with open(self._filename, 'a') as f:
-            f.write("[WARN]<{0}>:{1}\n".format(time.time(), message))
+        self._filed.write("[WARN]<{0}>:{1}\n".format(time.time(), message))
 
     def error(self, message):
-        with open(self._filename, 'a') as f:
-            f.write("[ERROR]<{0}>:{1}\n".format(time.time(), message))
+        self._filed.write("[ERROR]<{0}>:{1}\n".format(time.time(), message))
 
     def critical(self, message):
-        with open(self._filename, 'a') as f:
-            f.write("[CRITICAL]<{0}>:{1}\n".format(time.time(), message))
+        self._filed.write("[CRITICAL]<{0}>:{1}\n".format(time.time(), message))
+
 
 
 def test_code():
