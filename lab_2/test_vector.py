@@ -70,6 +70,8 @@ def test_mul_vec():
             res_vec = Vector(v1.x() * v2.x(), v1.y() * v2.y())
             assert (v1 * v2).x() == res_vec.x()
             assert (v1 * v2).y() == res_vec.y()
+            assert v1 * v2.x() == Vector(v1.x() * v2.x(), v1.y() * v2.x())
+            assert v2.x() * v1 == Vector(v1.x() * v2.x(), v1.y() * v2.x())
 
 
 def test_length():
