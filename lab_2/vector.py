@@ -12,10 +12,10 @@ class Vector:
         return Vector(x, y)
 
     def __str__(self):
-        return "<{0}, {1}>".format(self.__x, self.__y)
+        return self.__repr__()
 
     def __repr__(self):
-       return "<{0}, {1}>".format(self.__x, self.__y)
+        return "<{0}, {1}>".format(self.__x, self.__y)
 
     def __mul__(self, other):
         if isinstance(other, Vector):
@@ -34,9 +34,7 @@ class Vector:
         return type_eq and x_eq and y_eq
 
     def __ne__(self, other):
-        x_neq = self.__x != other.x()
-        y_neq = self.__y != other.y()
-        return x_neq or y_neq
+        return not self.__eq__(other)
 
     def __abs__(self):
         vec_len = (self.__x ** 2 + self.__y ** 2) ** 0.5
