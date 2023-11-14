@@ -1,18 +1,16 @@
 import time
+import types
 
 
-class Decorator:
+class BaseDecorator:
     def __init__(self, func):
-        self.func = func
+        self.__func = func
+        func_ptr = func
+        while not isinstance(func_ptr, types.FunctionType):
+            func_ptr = func_ptr.__func
+        self.f_name = func_ptr.__name__
         self.history = ""  # поле, в котором хранится история
-
-    def __call__(self, *args, **kwargs):
-        start_time = time.time()
-        self.func(*args, **kwargs)
-        self.update_history(start_time, self.func.__name__, *args)
-        # print(args, *args)
-        func_time = time.time() - start_time
-        self.print_time(func_time)
+        self.time = 0
 
     def update_history(self, start_time, func_name, func_args):
         arg_line = ""
@@ -22,19 +20,29 @@ class Decorator:
         self.history = self.history + new_line
         # print(new_line)
 
-    @staticmethod
-    def print_time(func_time):
-        print(func_time)
+    def __call__(self, *args, **kwargs):
+        start_time = time.time()
+        self.__func(*args, **kwargs)
+        self.update_history(start_time, self.f_name, *args)
+        self.time = time.time() - start_time
+        self.print_time()
+
+    def print_time(self):
+        print(self.time)
 
 
-class HTMLDecorator(Decorator):
-    @staticmethod
-    def print_time(func_time):
-        html_time = "<html><body>{0}</body><html>".format(func_time)
+class Decorator(BaseDecorator):
+    def print_time(self):
+        print(self.time)
+
+
+class HTMLDecorator(BaseDecorator):
+    def print_time(self):
+        html_time = "<html><body>{0}</body><html>".format(self.time)
         print(html_time)
 
 
-@HTMLDecorator
+# @HTMLDecorator
 def _for(nums):
     res = list()
     for i in nums:
@@ -43,11 +51,12 @@ def _for(nums):
 
 
 @HTMLDecorator
+@Decorator
 def _lst(nums):
     return list(i*i for i in nums)
 
 
-@HTMLDecorator
+# @HTMLDecorator
 def _mp(nums):
     return list(map(lambda i: i*i, nums))
 
