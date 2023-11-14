@@ -16,21 +16,24 @@ class Log(object):
     def __del__(self):
         self._filed.close()
 
+    @staticmethod
+    def form_str(tp, tm, msg):
+        return "[{0}]<{1}>:{2}\n".format(tp, tm, msg)
+
     def debug(self, message):
-        self._filed.write("[DEBUG]<{0}>:{1}\n".format(time.time(), message))
+        self._filed.write(self.form_str("DEBUG", time.time(), message))
 
     def info(self, message):
-        self._filed.write("[INFO]<{0}>:{1}\n".format(time.time(), message))
+        self._filed.write(self.form_str("INFO", time.time(), message))
 
     def warn(self, message):
-        self._filed.write("[WARN]<{0}>:{1}\n".format(time.time(), message))
+        self._filed.write(self.form_str("WARN", time.time(), message))
 
     def error(self, message):
-        self._filed.write("[ERROR]<{0}>:{1}\n".format(time.time(), message))
+        self._filed.write(self.form_str("ERROR", time.time(), message))
 
     def critical(self, message):
-        self._filed.write("[CRITICAL]<{0}>:{1}\n".format(time.time(), message))
-
+        self._filed.write(self.form_str("CRITICAL", time.time(), message))
 
 
 def test_code():
