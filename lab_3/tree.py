@@ -20,6 +20,9 @@ class TreeNode:
             self.right = TreeNode(value)
             # self.right.parent = self
 
+    def __str__(self):
+        return "{0}".format(self.value)
+
     def __iter__(self):
         if self.left is not None:
             yield from self.left
@@ -59,7 +62,8 @@ class Tree:
 
 t = Tree()
 l = (10, 1, 2, 4, 6, 15, 3, 20, 45, 19)
+
 for i in l:
     t.add_value(i)
 for i in t:
-    print(i.value)
+    print(i)
