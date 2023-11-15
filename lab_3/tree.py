@@ -8,7 +8,7 @@ class TreeNode:
     def has_req_child(self, val):
         if self.value > val and self.left is not None:
             return True
-        elif self.value <= val and self.right is not None:
+        elif self.value < val and self.right is not None:
             return True
         return False
 
@@ -61,7 +61,7 @@ class Tree:
 
 
 t = Tree()
-l = (10, 1, 2, 4, 6, 15, 3, 20, 45, 19)
+l = (10, 1, 2, 4, 6, 15, 1, 1, 1, 3, 20, 45, 19)
 
 for i in l:
     t.add_value(i)
