@@ -103,9 +103,9 @@ class Server:
                 current_lab.set_deadline(request.query['date'])
             if 'students' in request.query:
                 current_lab.update_students(request.query['students'])
-            elif 'add_students' in request.query:
+            if 'add_students' in request.query:
                 current_lab.add_students(request.query['add_students'])
-            elif 'delete_students' in request.query:
+            if 'delete_students' in request.query:
                 current_lab.delete_students(request.query['delete_students'])
 
             response_obj = {'status': 'success', 'message': 'lab is updated'}
