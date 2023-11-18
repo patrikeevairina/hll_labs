@@ -78,7 +78,7 @@ class Server:
     async def handle_create_lab(self, request):
         try:
             lab_name = request.query['name']
-            lab_deadline = request.query['deadline']
+            lab_deadline = request.query['date']
             self.labs[lab_name] = Lab(lab_deadline)
             if 'description' in request.query:
                 self.labs[lab_name].set_description(request.query['description'])
