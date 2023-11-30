@@ -28,10 +28,9 @@ class Vector:
             return Vector(x, y)
 
     def __rmul__(self, other):
-        if isinstance(other, int):
-            x = self.__x * other
-            y = self.__y * other
-            return Vector(x, y)
+        x = self.__x * other
+        y = self.__y * other
+        return Vector(x, y)
 
     def __eq__(self, other):
         type_eq = isinstance(other, Vector)
