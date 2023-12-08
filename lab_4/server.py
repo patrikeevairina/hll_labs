@@ -49,7 +49,7 @@ class Server:
         self.url = 'http://' + self.host + ':' + str(self.port) + '/labs'
 
         #  добавляем все нужные маршруты и связываем запросы с функциями
-        self.app.router.add_put('/labs', self.handle_create_lab)
+        self.app.router.add_post('/labs', self.handle_create_lab)
         self.app.router.add_get('/labs', self.handle_get_all_labs)
         self.app.router.add_patch('/labs/{name}', self.handle_edit_lab)
         self.app.router.add_get('/labs/{name}', self.handle_get_lab)
@@ -71,7 +71,7 @@ class Server:
             print("Getting all labs failed")
 
             response_obj = {'status': 'failed', 'message': str(ex)}
-            return web.Response(text=json.dumps(response_obj), status=500)
+            return web.Response(text=json.dumps(response_obj), status=400)
 
     #  функция для PUT-запроса на создание лабораторной работы, обязательно нужно указать дедлайн,
     #  опционально -- описание
@@ -83,19 +83,24 @@ class Server:
             if 'description' in request.query:
                 self.labs[lab_name].set_description(request.query['description'])
 
-            response_obj = {'status': 'success', 'url': "{0}/{1}".format(self.url, lab_name)}
-            return web.Response(text=json.dumps(response_obj), status=200)
+            response_obj = {'status': 'success', 'Location': "{0}/{1}".format(self.url, lab_name)}
+            return web.Response(text=json.dumps(response_obj), status=201)
 
         except Exception as ex:
             print("Creating new lab failed")
 
             response_obj = {'status': 'failed', 'message': str(ex)}
-            return web.Response(text=json.dumps(response_obj), status=500)
+            return web.Response(text=json.dumps(response_obj), status=400)
 
     #  функция для PATCH-запроса на изменение существующей лабораторной
     async def handle_edit_lab(self, request):
         try:
             lab_name = self.get_lab_name(request)
+
+            if not self.labs.items().__contains__(lab_name):
+                response_obj = {'status': 'failed', 'message': str('lab with name \'{}\' doesn\'t exist'.format(lab_name))}
+                return web.Response(text=json.dumps(response_obj), status=404)
+
             current_lab = self.labs[lab_name]
             if 'description' in request.query:
                 current_lab.set_description(request.query['description'])
@@ -112,15 +117,20 @@ class Server:
             return web.Response(text=json.dumps(response_obj), status=200)
 
         except Exception as ex:
-            print("Editing lab failed")
+            print("Editing lab failed", ex)
 
             response_obj = {'status': 'failed', 'message': str(ex)}
-            return web.Response(text=json.dumps(response_obj), status=500)
+            return web.Response(text=json.dumps(response_obj), status=400)
 
     #  функция GET-запроса информации по конкретной лабораторной
     async def handle_get_lab(self, request):
         try:
             lab_name = self.get_lab_name(request)
+
+            if not self.labs.items().__contains__(lab_name):
+                response_obj = {'status': 'failed', 'message': str('lab with name \'{}\' doesn\'t exist'.format(lab_name))}
+                return web.Response(text=json.dumps(response_obj), status=404)
+
             current_lab = self.labs[lab_name]
 
             response_obj = {'status': 'success', 'lab params': str(current_lab)}
@@ -130,19 +140,24 @@ class Server:
             print("Getting lab failed")
 
             response_obj = {'status': 'failed', 'message': str(ex)}
-            return web.Response(text=json.dumps(response_obj), status=500)
+            return web.Response(text=json.dumps(response_obj), status=400)
 
     #  функция DELETE-запроса на удаление лабораторной
     async def handle_delete_lab(self, request):
         try:
             lab_name = self.get_lab_name(request)
+
+            if not self.labs.items().__contains__(lab_name):
+                response_obj = {'status': 'failed', 'message': str('lab with name \'{}\' doesn\'t exist'.format(lab_name))}
+                return web.Response(text=json.dumps(response_obj), status=404)
+
             self.labs.pop(lab_name)
             response_obj = {'status': 'success', 'message': 'lab was deleted'}
             return web.Response(text=json.dumps(response_obj), status=200)
 
         except Exception as ex:
             response_obj = {'status': 'failed', 'message': str(ex)}
-            return web.Response(text=json.dumps(response_obj), status=500)
+            return web.Response(text=json.dumps(response_obj), status=400)
 
     #  функция для получения имени текущей лабораторной работы
     def get_lab_name(self, request):
