@@ -40,7 +40,7 @@ class Lab:
         self.students = string_without_spaces.strip().split(',')
 
     def __str__(self):  # вся информация о лабораторной
-        s = 'deadline = \'{0}\'; description = \'{1}\'; students = {2}'\
+        s = '{{\"deadline\" : \"{0}\", \"description\" : \"{1}\", \"students\" : \"{2}\"}}'\
             .format(self.date.strftime('%d.%m.%Y'), self.description, ", ".join(self.students))
         return s
 
@@ -142,7 +142,7 @@ class Server:
 
             current_lab = self.labs[lab_name]
 
-            response_obj = {"status": "success", 'lab params': str(current_lab)}
+            response_obj = {"status": "success", lab_name: str(current_lab)}
             return web.Response(text=json.dumps(response_obj), status=200)
 
         except Exception as ex:
