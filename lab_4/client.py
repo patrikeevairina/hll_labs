@@ -19,9 +19,6 @@ class Client:
         self.sub_reg_for_params = r'{.*}'
         self.sub_reg_for_url = r'http://localhost:8080/labs/\b\w+\b'
 
-        self.file_name = 'labs_info.csv'
-        self.fieldnames = [' ']
-
     async def run_session(self):
         self.session = aiohttp.ClientSession()
         try:
@@ -144,7 +141,7 @@ class Client:
         lab_descr_dict = dict()
         lab_all_students_list = list()
         lab_students_dict = dict()
-        
+
         for lab_name in raw_lab_dict.keys():
             fields.append(lab_name)
             lab_params_dict = json.loads(raw_lab_dict[lab_name])
