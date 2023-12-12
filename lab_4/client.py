@@ -4,7 +4,7 @@ import aiohttp
 import re
 import csv
 
-
+    
 class Client:
     def __init__(self):
         self.host = 'localhost'
@@ -27,82 +27,153 @@ class Client:
         try:
             while True:
                 await self.input_to_req()
-        except EOFError:
-            await self.session.close()
-            print("Сессия завершена успешно")
-            exit(0)
+        # except EOFError:
+        #     await self.session.close()
+        #     print("Сессия завершена успешно")
+        #     exit(0)
         except Exception as e:
             print(e)
             await self.session.close()
+            print("Сессия завершена")
             exit(-1)
 
     async def input_to_req(self):
         input_text = "Введите запрос: \n"
         req_string = input(input_text).removeprefix(input_text)
 
-        if re.fullmatch(self.reg_for_post, req_string):
+        is_post = re.fullmatch(self.reg_for_post, req_string)
+        is_patch = re.fullmatch(self.reg_for_patch, req_string)
+        is_get = re.match(self.reg_for_get_lab, req_string)
+        is_get_all =  re.match(self.reg_for_get_all, req_string)
+        is_delete = re.match(self.reg_for_delete_lab, req_string)
+
+        if is_post:
             print("Создание лабораторной работы")
             params_string = re.findall(self.sub_reg_for_params, req_string)[0]
             params_dict = json.loads(params_string)
             async with self.session.post(self.url, params=params_dict) as resp:
-                await self.process_resp(resp.status, resp)
+                await self.process_create_lab_resp(resp.status, resp)
 
-        elif re.fullmatch(self.reg_for_patch, req_string):
+        elif is_patch:
             print("Изменение лабораторной работы")
             params_url = re.findall(self.sub_reg_for_url, req_string)[0]
             params_string = re.findall(self.sub_reg_for_params, req_string)[0]
             params_dict = json.loads(params_string)
             async with self.session.patch(params_url, params=params_dict) as resp:
-                await self.process_resp(resp.status, resp)
+                await self.check_resp_is_success(resp.status, resp)
 
-        elif re.match(self.reg_for_get_lab, req_string):
+        elif is_get:
             print("Получение данных о лабораторной работе")
             params_url = re.findall(self.sub_reg_for_url, req_string)[0]
             async with self.session.get(params_url) as resp:
-                await self.process_resp(resp.status, resp, flag_write_in_file=True)
+                await self.process_get_lab(resp.status, resp)
 
-        elif re.match(self.reg_for_get_all, req_string):
+        elif is_get_all:
             print("Получение данных о всех лабораторных работах")
             async with self.session.get(self.url) as resp:
-                await self.process_resp(resp.status, resp, flag_write_in_file=True)
+                await self.process_get_all_labs(resp.status, resp)
 
-        elif re.match(self.reg_for_delete_lab, req_string):
+        elif is_delete:
             print("Удаление лабораторной работы")
             params_url = re.findall(self.sub_reg_for_url, req_string)[0]
             async with self.session.delete(params_url) as resp:
-                await self.process_resp(resp.status, resp)
-
+                await self.check_resp_is_success(resp.status, resp)
         else:
             print("Запрос введён некорректно")
 
-    async def process_resp(self, status, response, flag_write_in_file=False):
+    @staticmethod
+    async def check_resp_is_success(status, response) -> bool:
         print(status)
         if status not in range(200, 299):
             print(await response.text())
-            return
+            return False
+        return True
 
-        # если вернулся хороший код
+    async def process_create_lab_resp(self, status, response):
+        if await self.check_resp_is_success(status, response) is False:
+            return
         d = json.loads(await response.text())
         d.pop('status', None)
         print(d)
         if "Location" in d:
             print(d["Location"])
             return
+        else:
+            print("Отсутствует заголовок \'Location\'")
+        
+    async def process_get_lab(self, status, response):
+        if await self.check_resp_is_success(status, response) is False:
+            return
+        
+        raw_lab_dict = json.loads(await response.text())
+        raw_lab_dict.pop('status', None)
 
-        if flag_write_in_file is True:
-            await self.write_in_csv(d)
+        if len(raw_lab_dict) != 1:
+            print(raw_lab_dict, "Incorrect lab format")
+            return
+        
+        lab_name = list(raw_lab_dict.keys())[0]
+        lab_params_dict = json.loads(raw_lab_dict[lab_name])
+        # print(lab_name, lab_params_dict, type(lab_params_dict))
 
-    async def write_in_csv(self, d):
-        for lab_name in d:
-            if lab_name not in self.fieldnames:
-                self.fieldnames.append(lab_name)
-        with open(self.file_name, 'a+') as csv_file:
-            writer = csv.DictWriter(csv_file, fieldnames=self.fieldnames)
-            # writer.writeheader()
-            for lab_name in d:
-                lab_params_dict = json.loads(d[lab_name])
-                print(lab_name, lab_params_dict)
+        lab_date = lab_params_dict['deadline']
+        lab_descr = lab_params_dict['description']
+        lab_students_list = lab_params_dict['students'].replace(" ", "").strip().split(",")
 
+        print(lab_name, lab_date, lab_descr, lab_students_list)
+        with open("{}.csv".format(lab_name), 'w', newline='') as csv_file:
+            fields = ['students', 'lab_params']
+            writer = csv.DictWriter(csv_file, fieldnames=fields, delimiter=';')
+            writer.writerow({'lab_params': lab_name})
+            writer.writerow({'lab_params': lab_date})
+            writer.writerow({'lab_params': lab_descr})
+            for student in lab_students_list:
+                if student != '':
+                    writer.writerow({'students': student, 'lab_params': '+'})
+
+    async def process_get_all_labs(self, status, response):
+        if await self.check_resp_is_success(status, response) is False:
+            return
+        
+        raw_lab_dict = json.loads(await response.text())
+        raw_lab_dict.pop('status', None)
+
+        fields = ['students']
+        lab_name_dict = dict()
+        lab_date_dict = dict()
+        lab_descr_dict = dict()
+        lab_all_students_list = list()
+        lab_students_dict = dict()
+        
+        for lab_name in raw_lab_dict.keys():
+            fields.append(lab_name)
+            lab_params_dict = json.loads(raw_lab_dict[lab_name])
+            lab_name_dict[lab_name] = lab_name
+            lab_date_dict[lab_name] = lab_params_dict['deadline']
+            lab_descr_dict[lab_name] = lab_params_dict['description']
+            lab_students_dict[lab_name] = lab_params_dict['students'].replace(" ", "").strip().split(",")
+            lab_all_students_list += lab_students_dict[lab_name]
+
+        lab_all_students_set = set(lab_all_students_list)
+        
+        with open("labs.csv", 'w', newline='') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=fields, delimiter=';')
+
+            writer.writerow(lab_name_dict)
+            writer.writerow(lab_date_dict)
+            writer.writerow(lab_descr_dict)
+            
+            for student in [*lab_all_students_set]:
+                if student == '':
+                    continue
+                student_results = dict()
+                student_results['students'] = student
+                for lab_name in lab_name_dict.keys():
+                    if student in lab_students_dict[lab_name]:
+                        student_results[lab_name] = "+"
+                    else:
+                        student_results[lab_name] = "-"
+                writer.writerow(student_results)
 
 
 
